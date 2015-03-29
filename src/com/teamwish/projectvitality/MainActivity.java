@@ -1,22 +1,20 @@
 package com.teamwish.projectvitality;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.teamwish.projectvitality.util.AsyncNetworkUtil;
 import com.teamwish.projectvitality.util.NetworkUtil;
 import com.teamwish.projectvitality.util.PowerService;
 
-public class MainActivity extends Activity implements AsyncNetworkUtil.OnNetworkFetchComplete, View.OnClickListener, CompoundButton.OnCheckedChangeListener{
+public class MainActivity extends Activity implements AsyncNetworkUtil.OnNetworkFetchComplete, View.OnClickListener, CompoundButton.OnCheckedChangeListener, TextWatcher {
     /**
      * Called when the activity is first created.
      */
@@ -28,6 +26,9 @@ public class MainActivity extends Activity implements AsyncNetworkUtil.OnNetwork
         startService(serviceIntent);
 
         findViewById(R.id.charging_button).setOnClickListener(this);
+        Log.d("Vitality", Integer.toString(getSharedPreferences("settings", MODE_PRIVATE).getInt("charge", 100)));
+        ((EditText) findViewById(R.id.stop_charge_edit_text)).setText(Integer.toString(getSharedPreferences("settings", MODE_PRIVATE).getInt("charge", 100)));
+        ((EditText) findViewById(R.id.stop_charge_edit_text)).addTextChangedListener(this);
        // ((CheckBox) findViewById(R.id.power_off_checkbox)).setOnCheckedChangeListener(this);
     }
 
@@ -75,5 +76,21 @@ public class MainActivity extends Activity implements AsyncNetworkUtil.OnNetwork
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         getSharedPreferences("settings", MODE_PRIVATE).edit().putBoolean("poweroff", isChecked);
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if (!s.toString().isEmpty())
+            getSharedPreferences("settings", MODE_PRIVATE).edit().putInt("charge", Integer.parseInt(s.toString())).commit();
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
     }
 }

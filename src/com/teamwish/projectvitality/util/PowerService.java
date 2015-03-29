@@ -1,18 +1,49 @@
 package com.teamwish.projectvitality.util;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.*;
-import android.util.Log;
+import android.os.BatteryManager;
+import android.os.IBinder;
 
 /**
  * Created by kuzalj on 3/28/2015.
  */
 public class PowerService extends Service {
+
+    private BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int level = intent.getIntExtra("level", 0);
+            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                    status == BatteryManager.BATTERY_STATUS_FULL;
+
+
+            if (level >= getSharedPreferences("settings", MODE_PRIVATE).getInt("charge", 100) && isCharging) {
+
+                new NetworkUtil().setCustomState("off");
+                new NetworkUtil().setLightState("gr");
+            }
+
+        }
+    };
+    private BroadcastReceiver powerReciever = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                    status == BatteryManager.BATTERY_STATUS_FULL;
+
+            if (isCharging) {
+                //new NetworkUtil().setLightState("red");
+                //new NetworkUtil().setCustomState("on");
+            }
+
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -35,39 +66,4 @@ public class PowerService extends Service {
     public void onDestroy() {
         unregisterReceiver(batteryReceiver);
     }
-
-    private BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive( Context context, Intent intent )
-        {
-            int level = intent.getIntExtra("level", 0);
-            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                    status == BatteryManager.BATTERY_STATUS_FULL;
-
-
-            if(level >= Constants.MAX_CHARGE_LEVEL && isCharging){
-
-               new NetworkUtil().setCustomState("off");
-                new NetworkUtil().setLightState("gr");
-            }
-
-        }
-    };
-
-    private BroadcastReceiver powerReciever = new BroadcastReceiver() {
-        @Override
-        public void onReceive( Context context, Intent intent )
-        {
-            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                    status == BatteryManager.BATTERY_STATUS_FULL;
-
-            if(isCharging){
-                //new NetworkUtil().setLightState("red");
-                //new NetworkUtil().setCustomState("on");
-            }
-
-        }
-    };
 }

@@ -6,5 +6,8 @@
     <string name="stop_charging">Stop Charging</string>
     <string name="disconnected">Disconnected</string>
     <string name="desc">The phone will automatically disable charging when it is completely charged to save the longevity of your battery.</string>
+    <string name="hundred">100</string>
+    <string name="charge_to">Percent To Charge To: </string>
+
 
 </resources>
